@@ -1,1 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数学War！</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="gameUI">
+            <div id="powerDisplay">戦力: 10</div>
+            <div id="question"></div>
+            <div id="gameInfo">
+                <div>ゲート: <span id="gateCount">0</span>/10</div>
+                <div>スコア: <span id="score">0</span></div>
+            </div>
+            <div id="gameOver">
+                <h2 id="gameOverText">ゲームオーバー</h2>
+                <p style="font-size: 24px;">最終スコア: <span id="finalScore">0</span></p>
+                <button class="button" id="restartBtn">もう一度プレイ</button>
+            </div>
+        </div>
+        <div id="startScreen">
+            <div id="startContent">
+                <h1>数学War！</h1>
+                <h2>文字式の計算</h2>
+                <p>正しい答えを選んで敵を倒そう！</p>
+                <p style="font-size: 16px; opacity: 0.7;">マウスを動かして移動</p>
+                <button class="button" id="startBtn">ゲームスタート</button>
+            </div>
+        </div>
+    </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
