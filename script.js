@@ -17,6 +17,11 @@ let gateSpeed = 0.09;
 let enemySpawnRate = 0.03;
 let maxEnemies = 20;
 
+// 音声関連の変数
+let bgm, shootSound, powerUpSound;
+let shootSoundPool = []; // 複数の攻撃音インスタンス
+let currentShootSound = 0;
+
 // バランス設定
 const powerProgression = [10, 20, 40, 55, 80, 110, 145, 185, 230, 280, 335];
 const enemyHPProgression = [10, 15, 20, 30, 45, 65, 90, 120, 155, 195, 240];
@@ -127,6 +132,25 @@ function initThree() {
     scene.add(bridgeGroup);
 
     createPlayer();
+}
+
+// 音声ファイルの初期化
+function initSounds() {
+    // BGM
+    bgm = new Audio('sounds/bgm.mp3');
+    bgm.loop = true;
+    bgm.volume = 0.3;
+    
+    // パワーアップ音
+    powerUpSound = new Audio('sounds/powerUp.mp3');
+    powerUpSound.volume = 0.7;
+    
+    // 攻撃音のプールを作成（音の重なりを制御）
+    for (let i = 0; i < 5; i++) {
+        const sound = new Audio('sounds/shoot.mp3');
+        sound.volume = 0.5;
+        shootSoundPool.push(sound);
+    }
 }
 
 // プレイヤー作成
@@ -291,6 +315,12 @@ function createBullet() {
     
     scene.add(bulletGroup);
     bullets.push(bulletGroup);
+    
+    // 攻撃音を再生（プールから順番に使用）
+    const sound = shootSoundPool[currentShootSound];
+    sound.currentTime = 0;
+    sound.play().catch(e => console.log('攻撃音再生エラー:', e));
+    currentShootSound = (currentShootSound + 1) % shootSoundPool.length;
     
     createParticleEffect(bulletGroup.position, bulletColor);
 }
@@ -557,6 +587,10 @@ function checkGatePass() {
                     playerPower = nextPower;
                     score += 100 * (gateCount + 1);
                     showEffect(upgradeMessage, 'correct-effect');
+                    
+                    // パワーアップ音を再生
+                    powerUpSound.currentTime = 0;
+                    powerUpSound.play().catch(e => console.log('パワーアップ音再生エラー:', e));
                 } else {
                     showEffect(`不正解... 正解は ${currentQuestion.correct}`, 'incorrect-effect');
                 }
@@ -646,6 +680,10 @@ function gameOver() {
     document.getElementById('gameOverText').textContent = 'ゲームオーバー';
     document.getElementById('finalScore').textContent = score;
     document.getElementById('gameOver').style.display = 'block';
+    
+    // BGMを停止
+    bgm.pause();
+    bgm.currentTime = 0;
 }
 
 // ゲームクリア
@@ -654,6 +692,10 @@ function gameWin() {
     document.getElementById('gameOverText').textContent = '素晴らしい！全ステージクリア！';
     document.getElementById('finalScore').textContent = score;
     document.getElementById('gameOver').style.display = 'block';
+    
+    // BGMを停止
+    bgm.pause();
+    bgm.currentTime = 0;
 }
 
 // ゲーム開始
@@ -689,6 +731,15 @@ function startGame() {
     }
 
     createGates();
+    
+    // BGMを再生
+    bgm.play().catch(e => {
+        console.log('BGM再生エラー:', e);
+        // ユーザーインタラクション後に再生を試みる
+        document.addEventListener('click', () => {
+            bgm.play().catch(e => console.log('BGM再生再試行エラー:', e));
+        }, { once: true });
+    });
 }
 
 // アニメーションループ
@@ -758,6 +809,7 @@ function onWindowResize() {
 
 // 初期化
 initThree();
+initSounds();
 
 // イベントリスナー
 window.addEventListener('mousemove', onMouseMove);
